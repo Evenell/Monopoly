@@ -1,48 +1,19 @@
 var socket = io();
-
 var movement = {
-	up: false,
-	down: false,
-	left: false,
-	right: false
+	moving: false,
+	startX: 0,
+	startY: 0,
+	tgtX:  -1,
+	tgtY:  -1
 }
 var shoot = false;
-document.addEventListener('keydown', function(event) {
-	switch (event.keyCode) {
-		case 65:
-			movement.left = true;
-			break;
-		case 87:
-			movement.up = true;
-			break;
-		case 68:
-			movement.right = true;
-			break;
-		case 83:
-			movement.down = true;
-			break;
-		case 32: 
-			shoot = true;
-	}
+
+document.addEventListener('mousedown', function(event) {
+	movement.moving = true;
+	movement.tgtX = event.clientX;
+	movement.tgtY = event.clientY;
 });
-document.addEventListener('keyup', function(event) {
-	switch (event.keyCode) {
-		case 65:
-			movement.left = false;
-			break;
-		case 87:
-			movement.up = false;
-			break;
-		case 68:
-			movement.right = false;
-			break;
-		case 83:
-			movement.down = false;
-			break;
-		case 32:
-			shoot = false;
-	}
-});
+
 
 
 socket.emit('new player');

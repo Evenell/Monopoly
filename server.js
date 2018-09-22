@@ -2,10 +2,11 @@
 var express = require('express');
 var http = require('http');
 var path = require('path');
-var socketIO = require('socket.io');
 var app = express();
 var server = http.Server(app);
+var socketIO = require('socket.io');
 var io = socketIO(server);
+var Player = require('Player.js');
 app.set('port', 5000);
 app.use('/static', express.static(__dirname + '/static'));
 
@@ -20,30 +21,22 @@ server.listen(5000, function() {
 
 // Add the WebSocket handlers
 io.on('connection', function(socket) {
+	console.log("someone has joined the game");
 });
 
 var players = {};
 io.on('connection', function(socket) {
 	socket.on('new player', function() {
-		players[socket.id] = {
-			x: 300,
-			y: 300
-		};
+		players[socket.id] = Player.generateNewPlayer('a', socket.id);
 	});
-	socket.on('movement', function(data) {
+	socket.on('movement', function(moveData) {
 		var player = players[socket.id] || {};
-		if (data.left && player.x >= 5) {
-			player.x -= 5;
+		if (moveData.moving && (moveData.tgtX < player.x - 1 || 
+				moveData.tgtX > player.x + 1 || 
+				moveData.tgtY < player.y - 1 || 
+				moveData.tgtY > player.y + 1)) {
+			player.moveToLocation(moveData.tgtX, moveData.tgtY);
 		}
-		if (data.up && player.y >= 5) {
-			player.y -= 5;
-		}
-		if (data.right && player.x <= 795) {
-			player.x += 5;
-		}
-		if (data.down && player.y <= 595) {
-			player.y += 5;
-		};
 	});
 });
 
