@@ -12,9 +12,6 @@ Player.generateNewPlayer = function(name, id) {
 }
 
 Player.prototype.moveToLocation = function(targetX, targetY) {
-	console.log(this.x);
-	console.log(this.y);
-	console.log('got to moveToLocation');
 	var theta = Math.atan((targetY - this.y) / (targetX - this.x));
 	this.orientation = theta;
 	if (targetX != this.x) {
