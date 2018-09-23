@@ -1,5 +1,5 @@
 {
-  "name": "monopoly",
+  "name": "ShooterGame",
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
@@ -8,14 +8,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Evenell/Monopoly.git"
+    "url": "git+https://github.com/Evenell/ShooterGame.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/Evenell/Monopoly/issues"
+    "url": "https://github.com/Evenell/ShooterGame/issues"
   },
-  "homepage": "https://github.com/Evenell/Monopoly#readme",
+  "homepage": "https://github.com/Evenell/ShooterGame#readme",
   "dependencies": {
     "express": "^4.16.3",
     "socket.io": "^2.1.1"
