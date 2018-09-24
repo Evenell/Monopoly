@@ -35,16 +35,23 @@ io.on('connection', function(socket) {
 		players[socket.id] = Player.generateNewPlayer('a', socket.id);
 	});
 	socket.on('movement', function(moveData) {
-		var player = players[socket.id] || {};
-
-		player.updateDirection(moveData.dirX, moveData.dirY);
-
-		if (moveData.moving && (moveData.tgtX < player.x - 5 || 
-		 	moveData.tgtX > player.x + 5 || 
-		 	moveData.tgtY < player.y - 5 || 
-			moveData.tgtY > player.y + 5)) {
-		 	player.moveToLocation(moveData.tgtX, moveData.tgtY);
+		var player = players[socket.id];
+		if (typeof player != 'undefined'){
+			player.updateDirection(moveData.dirX, moveData.dirY);
 		}
+		if (moveData.left) {
+			player.x -= 5;
+		}
+		if (moveData.right) {
+			player.x += 5;
+		}
+		if (moveData.up) {
+			player.y -= 5;
+		}
+		if (moveData.down) {
+			player.y += 5;
+		}
+		
 		for (var num in bullets) {
 			var bullet = bullets[num];
 			bullet.update();
@@ -52,21 +59,19 @@ io.on('connection', function(socket) {
 	});
 
 	socket.on('action', function(actionData) {
-		var player = players[socket.id];
+		var player = players[socket.id] || {};
 		if (actionData.q) {
-			var deg = (6.0 / 360) * Math.PI * 2;
-			player.unitVectX = player.dirX;
-			player.unitVectY = player.dirY;
-			bullets.push(Bullet.create(player.x + player.dirX * 12, 
-								   	   player.y + player.dirY * 12, player.dirX * Math.cos(2 * deg) - player.dirY * Math.sin(2 * deg), player.dirY * Math.cos(2 * deg) + player.dirX * Math.sin(2 * deg), socket.id));
-			bullets.push(Bullet.create(player.x + player.dirX * 12, 
-								   	   player.y + player.dirY * 12, player.dirX * Math.cos(deg) - player.dirY * Math.sin(deg), player.dirY * Math.cos(deg) + player.dirX * Math.sin(deg), socket.id));
-			bullets.push(Bullet.create(player.x + player.dirX * 12, 
-								   	   player.y + player.dirY * 12, player.dirX, player.dirY, socket.id));
-			bullets.push(Bullet.create(player.x + player.dirX * 12, 
-								   	   player.y + player.dirY * 12, player.dirX * Math.cos(deg) + player.dirY * Math.sin(deg), player.dirY * Math.cos(deg) - player.dirX * Math.sin(deg), socket.id));
-			bullets.push(Bullet.create(player.x + player.dirX * 12, 
-								   	   player.y + player.dirY * 12, player.dirX * Math.cos(2 * deg) + player.dirY * Math.sin(2 * deg), player.dirY * Math.cos(2 * deg) - player.dirX * Math.sin(2 * deg), socket.id));
+			var deg = (6.0 / 360.0) * Math.PI * 2.0;
+			bullets.push(Bullet.create(player.x + player.dirX * 12.0, 
+								   	   player.y + player.dirY * 12.0, player.dirX * Math.cos(2 * deg) - player.dirY * Math.sin(2 * deg), player.dirY * Math.cos(2 * deg) + player.dirX * Math.sin(2 * deg), socket.id));
+			bullets.push(Bullet.create(player.x + player.dirX * 12.0, 
+								   	   player.y + player.dirY * 12.0, player.dirX * Math.cos(deg) - player.dirY * Math.sin(deg), player.dirY * Math.cos(deg) + player.dirX * Math.sin(deg), socket.id));
+			bullets.push(Bullet.create(player.x + player.dirX * 12.0, 
+								   	   player.y + player.dirY * 12.0, player.dirX, player.dirY, socket.id));
+			bullets.push(Bullet.create(player.x + player.dirX * 12.0, 
+								   	   player.y + player.dirY * 12.0, player.dirX * Math.cos(deg) + player.dirY * Math.sin(deg), player.dirY * Math.cos(deg) - player.dirX * Math.sin(deg), socket.id));
+			bullets.push(Bullet.create(player.x + player.dirX * 12.0, 
+								   	   player.y + player.dirY * 12.0, player.dirX * Math.cos(2 * deg) + player.dirY * Math.sin(2 * deg), player.dirY * Math.cos(2 * deg) - player.dirX * Math.sin(2 * deg), socket.id));
 			socket.emit('q executed', false);
 		}
 	});

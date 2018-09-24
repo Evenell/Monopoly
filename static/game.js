@@ -1,12 +1,12 @@
 var socket = io();
 var movement = {
 	moving: false,
-	startX: 0,
-	startY: 0,
-	tgtX:  -1,
-	tgtY:  -1,
-	dirX: -1,
-	dirY: -1
+	up: false,
+	left: false,
+	right: false,
+	down: false,
+	dirX: 0,
+	dirY: 0
 }
 var action = {
 	q: false,
@@ -14,7 +14,8 @@ var action = {
 	e: false,
 	r: false,
 	d: false,
-	f: false
+	f: false,
+	attack: false
 }
 
 var lastUsed = {
@@ -30,32 +31,48 @@ document.getElementById("canvas").addEventListener('mousemove', function(event) 
 	movement.dirY = event.clientY;
 })
 document.getElementById("canvas").addEventListener('mousedown', function(event) {
-	movement.moving = true;
-	movement.tgtX = event.clientX;
-	movement.tgtY = event.clientY;
+	if (event.which == 3) {
+		movement.moving = true;
+		movement.tgtX = event.clientX;
+		movement.tgtY = event.clientY;
+	} 
 });
 document.addEventListener('keydown', function(event) {
 	switch (event.keyCode) {
+		case 87: //W
+			movement.up = true;
+			break;
+		case 65: //A
+			movement.left = true;
+			break;
+		case 83: //S
+			movement.down = true;
+			break;
+		case 68: //D
+			movement.right = true;
+			break;
 		case 81: //Q
 			if (lastUsed.q > 100) {
 				action.q = true;
 				lastUsed.q = 1;
 				break;
 			}
+	}
+});
+
+document.addEventListener('keyup', function(event) {
+	switch (event.keyCode) {
 		case 87: //W
-			action.w = true;
+			movement.up = false;
 			break;
-		case 69: //E
-			action.e = true;
+		case 65: //A
+			movement.left = false;
 			break;
-		case 82: //R
-			action.r = true;
+		case 83: //S
+			movement.down = false;
 			break;
-		case  68: //D
-			action.d = true;
-			break;
-		case 70: //F
-			action.f = true;
+		case 68: //D
+			movement.right = false;
 			break;
 	}
 });
@@ -89,14 +106,14 @@ socket.on('playerState', function(players) {
 		context.arc(player.x, player.y, 10, 0, 2 * Math.PI);
 		context.fill();
 		context.moveTo(player.x, player.y);
-		var newAngle1Sin = player.unitVectY * Math.cos(Math.PI / 4) + player.unitVectX * Math.sin(Math.PI / 4);
-		var newAngle1Cos = player.unitVectX * Math.cos(Math.PI / 4) - player.unitVectY * Math.sin(Math.PI / 4);
-		var newAngle2Sin = player.unitVectY * Math.cos(Math.PI / 4) - player.unitVectX * Math.sin(Math.PI / 4);
-		var newAngle2Cos = player.unitVectX * Math.cos(Math.PI / 4) + player.unitVectY * Math.sin(Math.PI / 4);
+		var newAngle1Sin = player.dirY * Math.cos(Math.PI / 4) + player.dirX * Math.sin(Math.PI / 4);
+		var newAngle1Cos = player.dirX * Math.cos(Math.PI / 4) - player.dirY * Math.sin(Math.PI / 4);
+		var newAngle2Sin = player.dirY * Math.cos(Math.PI / 4) - player.dirX * Math.sin(Math.PI / 4);
+		var newAngle2Cos = player.dirX * Math.cos(Math.PI / 4) + player.dirY * Math.sin(Math.PI / 4);
 		
-		context.moveTo(player.x + 20 * player.unitVectX, player.y + 20 * player.unitVectY);
+		context.moveTo(player.x + 20 * player.dirX, player.y + 20 * player.dirY);
 		context.lineTo(player.x + 10 * newAngle1Cos, player.y + 10 * newAngle1Sin);
-		context.moveTo(player.x + 20 * player.unitVectX, player.y + 20 * player.unitVectY);
+		context.moveTo(player.x + 20 * player.dirX, player.y + 20 * player.dirY);
 		context.lineTo(player.x + 10 * newAngle2Cos, player.y + 10 * newAngle2Sin);
 		context.stroke();
 	}
