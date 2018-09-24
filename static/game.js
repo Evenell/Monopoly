@@ -5,6 +5,8 @@ var movement = {
 	startY: 0,
 	tgtX:  -1,
 	tgtY:  -1,
+	dirX: -1,
+	dirY: -1
 }
 var action = {
 	q: false,
@@ -15,7 +17,19 @@ var action = {
 	f: false
 }
 
-document.addEventListener('mousedown', function(event) {
+var lastUsed = {
+	q: 100,
+	w: 100,
+	e: 100,
+	r: 100,
+	d: 100,
+	f: 100
+}
+document.getElementById("canvas").addEventListener('mousemove', function(event) {
+	movement.dirX = event.clientX;
+	movement.dirY = event.clientY;
+})
+document.getElementById("canvas").addEventListener('mousedown', function(event) {
 	movement.moving = true;
 	movement.tgtX = event.clientX;
 	movement.tgtY = event.clientY;
@@ -23,8 +37,11 @@ document.addEventListener('mousedown', function(event) {
 document.addEventListener('keydown', function(event) {
 	switch (event.keyCode) {
 		case 81: //Q
-			action.q = true;
-			break;
+			if (lastUsed.q > 100) {
+				action.q = true;
+				lastUsed.q = 1;
+				break;
+			}
 		case 87: //W
 			action.w = true;
 			break;
@@ -52,8 +69,12 @@ setInterval(function() {
 	socket.emit('action', action);
 }, 1000 / 60);
 
+socket.on('tick', function() {
+	lastUsed.q++;
+})
 socket.on('q executed', function() {
 	action.q = false;
+	movement.moving = false;
 });
 var canvas = document.getElementById('canvas');
 canvas.width = 800;

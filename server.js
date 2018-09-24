@@ -36,6 +36,9 @@ io.on('connection', function(socket) {
 	});
 	socket.on('movement', function(moveData) {
 		var player = players[socket.id] || {};
+
+		player.updateDirection(moveData.dirX, moveData.dirY);
+
 		if (moveData.moving && (moveData.tgtX < player.x - 5 || 
 		 	moveData.tgtX > player.x + 5 || 
 		 	moveData.tgtY < player.y - 5 || 
@@ -51,14 +54,27 @@ io.on('connection', function(socket) {
 	socket.on('action', function(actionData) {
 		var player = players[socket.id];
 		if (actionData.q) {
-			bullets.push(Bullet.create(player.x + player.unitVectX * 12, 
-								   	   player.y + player.unitVectY * 12, player.unitVectX, player.unitVectY));
-
+			var deg = (6.0 / 360) * Math.PI * 2;
+			player.unitVectX = player.dirX;
+			player.unitVectY = player.dirY;
+			bullets.push(Bullet.create(player.x + player.dirX * 12, 
+								   	   player.y + player.dirY * 12, player.dirX * Math.cos(2 * deg) - player.dirY * Math.sin(2 * deg), player.dirY * Math.cos(2 * deg) + player.dirX * Math.sin(2 * deg), socket.id));
+			bullets.push(Bullet.create(player.x + player.dirX * 12, 
+								   	   player.y + player.dirY * 12, player.dirX * Math.cos(deg) - player.dirY * Math.sin(deg), player.dirY * Math.cos(deg) + player.dirX * Math.sin(deg), socket.id));
+			bullets.push(Bullet.create(player.x + player.dirX * 12, 
+								   	   player.y + player.dirY * 12, player.dirX, player.dirY, socket.id));
+			bullets.push(Bullet.create(player.x + player.dirX * 12, 
+								   	   player.y + player.dirY * 12, player.dirX * Math.cos(deg) + player.dirY * Math.sin(deg), player.dirY * Math.cos(deg) - player.dirX * Math.sin(deg), socket.id));
+			bullets.push(Bullet.create(player.x + player.dirX * 12, 
+								   	   player.y + player.dirY * 12, player.dirX * Math.cos(2 * deg) + player.dirY * Math.sin(2 * deg), player.dirY * Math.cos(2 * deg) - player.dirX * Math.sin(2 * deg), socket.id));
 			socket.emit('q executed', false);
 		}
 	});
 });
 
+setInterval(function() {
+	io.sockets.emit('tick');
+}, 1000 / 60);
 setInterval(function() {
 	io.sockets.emit('playerState', players);
 	io.sockets.emit('bulletState', bullets);
